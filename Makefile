@@ -1,4 +1,10 @@
+# makeup-managed:begin
+include makeup.mk
+# makeup-managed:end
+
 SHORT_NAME := minio
+
+include ${MAKEUP_DIR}/makeup-bag-deis/versioning.mk
 
 export GO15VENDOREXPERIMENT=1
 
@@ -9,13 +15,8 @@ DEV_ENV_WORK_DIR := /go/src/${REPO_PATH}
 DEV_ENV_PREFIX := docker run --rm -v ${CURDIR}:${DEV_ENV_WORK_DIR} -w ${DEV_ENV_WORK_DIR}
 DEV_ENV_CMD := ${DEV_ENV_PREFIX} ${DEV_ENV_IMAGE}
 
-VERSION ?= git-$(shell git rev-parse --short HEAD)
 LDFLAGS := "-s -X main.version=${VERSION}"
 BINDIR := ./rootfs/bin
-DEV_REGISTRY ?= $(docker-machine ip deis):5000
-DEIS_REGISTRY ?= ${DEV_REGISTRY}
-
-IMAGE_PREFIX ?= deis
 
 RC := manifests/deis-${SHORT_NAME}-rc.yaml
 SVC := manifests/deis-${SHORT_NAME}-service.yaml
@@ -23,7 +24,6 @@ ADMIN_SEC := manifests/deis-${SHORT_NAME}-secretAdmin.yaml
 USER_SEC := manifests/deis-${SHORT_NAME}-secretUser.yaml
 # note that we are not running minio with ssl turned on. this variable is commented
 # SSL_SEC := manifests/deis-${SHORT_NAME}-secretssl-final.yaml
-IMAGE := ${DEIS_REGISTRY}${IMAGE_PREFIX}/${SHORT_NAME}:${VERSION}
 MC_IMAGE := ${DEIS_REGISTRY}${IMAGE_PREFIX}/mc:${VERSION}
 MC_INTEGRATION_IMAGE := ${DEIS_REGISTRY}${IMAGE_PREFIX}/mc-integration:${VERSION}
 
